@@ -115,10 +115,10 @@ async def connect_umbrella(ctx, params: ConnectUmbrellaParams) -> ActionResult:
         "label": params.label,
     })
     await _save_connections(ctx, connections)
-    return ActionResult.ok(ProviderConnection(
+    return ActionResult.success(ProviderConnection(
         id=conn_id, title=params.label or "Umbrella / Secure Access", kind="umbrella",
         connected=True, detail="Umbrella / Secure Access",
-    ))
+    ), summary="Umbrella connected.")
 
 
 @chat.function(
@@ -148,10 +148,10 @@ async def connect_meraki(ctx, params: ConnectMerakiParams) -> ActionResult:
         "label": params.label,
     })
     await _save_connections(ctx, connections)
-    return ActionResult.ok(ProviderConnection(
+    return ActionResult.success(ProviderConnection(
         id=conn_id, title=params.label or f"Meraki -- org {org_id}", kind="meraki",
         connected=True, detail=f"Meraki -- org {org_id}" if org_id else "Meraki",
-    ))
+    ), summary="Meraki connected.")
 
 
 @chat.function(
@@ -167,7 +167,7 @@ async def disconnect_cisco(ctx, params: DisconnectParams) -> ActionResult:
     if len(remaining) == len(connections):
         return ActionResult.fail(cc.NOT_FOUND, "No such connection.")
     await _save_connections(ctx, remaining)
-    return ActionResult.ok(DeleteResult(id=params.connection_id, ok=True))
+    return ActionResult.success(DeleteResult(id=params.connection_id, ok=True), summary="Cisco disconnected.")
 
 
 @chat.function(
@@ -179,4 +179,4 @@ async def disconnect_cisco(ctx, params: DisconnectParams) -> ActionResult:
 async def list_connections(ctx, params: NoParams) -> ActionResult:
     """List the connected Cisco Umbrella/Secure Access and Meraki accounts."""
     connections = await _load_connections(ctx)
-    return ActionResult.ok(ProviderConnectionList(items=[_connection_to_entity(c) for c in connections]))
+    return ActionResult.success(ProviderConnectionList(items=[_connection_to_entity(c) for c in connections]), summary="Connections listed.")
