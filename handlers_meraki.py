@@ -38,7 +38,7 @@ async def list_meraki_organizations(ctx, params: ListMerakiOrganizationsParams) 
     if not ok:
         return data
     items = [MerakiOrganization(id=str(o.get("id", "")), title=o.get("name", ""), url=o.get("url", "")) for o in data]
-    return ActionResult(success=True, data=MerakiOrganizationList(title=f"{len(items)} organization(s)", items=items))
+    return ActionResult.success(MerakiOrganizationList(title=f"{len(items)} organization(s)", items=items), summary="Meraki organizations listed.")
 
 
 @chat.function(
@@ -61,7 +61,7 @@ async def list_meraki_networks(ctx, params: ListMerakiNetworksParams) -> ActionR
                        product_types=n.get("productTypes", []), time_zone=n.get("timeZone", ""))
         for n in data
     ]
-    return ActionResult(success=True, data=MerakiNetworkList(title=f"{len(items)} network(s)", items=items))
+    return ActionResult.success(MerakiNetworkList(title=f"{len(items)} network(s)", items=items), summary="Meraki networks listed.")
 
 
 @chat.function(
@@ -78,10 +78,10 @@ async def get_meraki_network(ctx, params: GetMerakiNetworkParams) -> ActionResul
     ok, data = await cc.meraki_request(ctx, conn, "GET", f"/networks/{params.network_id}")
     if not ok:
         return data
-    return ActionResult(success=True, data=MerakiNetwork(
+    return ActionResult.success(MerakiNetwork(
         id=data.get("id", ""), title=data.get("name", ""),
         product_types=data.get("productTypes", []), time_zone=data.get("timeZone", ""),
-    ))
+    ), summary="Meraki network retrieved.")
 
 
 @chat.function(
@@ -102,10 +102,10 @@ async def create_meraki_network(ctx, params: CreateMerakiNetworkParams) -> Actio
     ok, data = await cc.meraki_request(ctx, conn, "POST", f"/organizations/{org_id}/networks", json_body=body)
     if not ok:
         return data
-    return ActionResult(success=True, data=MerakiNetwork(
+    return ActionResult.success(MerakiNetwork(
         id=data.get("id", ""), title=data.get("name", ""),
         product_types=data.get("productTypes", []), time_zone=data.get("timeZone", ""),
-    ))
+    ), summary="Meraki network created.")
 
 
 @chat.function(
@@ -125,10 +125,10 @@ async def update_meraki_network(ctx, params: UpdateMerakiNetworkParams) -> Actio
     ok, data = await cc.meraki_request(ctx, conn, "PUT", f"/networks/{params.network_id}", json_body=body)
     if not ok:
         return data
-    return ActionResult(success=True, data=MerakiNetwork(
+    return ActionResult.success(MerakiNetwork(
         id=data.get("id", ""), title=data.get("name", ""),
         product_types=data.get("productTypes", []), time_zone=data.get("timeZone", ""),
-    ))
+    ), summary="Meraki network updated.")
 
 
 @chat.function(
@@ -145,7 +145,7 @@ async def delete_meraki_network(ctx, params: DeleteMerakiNetworkParams) -> Actio
     ok, data = await cc.meraki_request(ctx, conn, "DELETE", f"/networks/{params.network_id}")
     if not ok:
         return data
-    return ActionResult(success=True, data=DeleteResult(id=params.network_id, title="Network deleted", ok=True))
+    return ActionResult.success(DeleteResult(id=params.network_id, title="Network deleted", ok=True), summary="Meraki network deleted.")
 
 
 @chat.function(
@@ -172,7 +172,7 @@ async def list_uplink_statuses(ctx, params: ListUplinkStatusesParams) -> ActionR
                 interface=uplink.get("interface", ""), status=uplink.get("status", ""),
                 ip=uplink.get("ip", ""),
             ))
-    return ActionResult(success=True, data=UplinkStatusList(title=f"{len(items)} uplink(s)", items=items))
+    return ActionResult.success(UplinkStatusList(title=f"{len(items)} uplink(s)", items=items), summary="Uplink statuses listed.")
 
 
 @chat.function(
@@ -198,7 +198,7 @@ async def list_vpn_topology(ctx, params: ListVpnTopologyParams) -> ActionResult:
                 title=peer.get("networkName", ""), network_a=entry.get("networkName", ""),
                 network_b=peer.get("networkName", ""), status=peer.get("reachability", ""),
             ))
-    return ActionResult(success=True, data=VpnTopologyResult(title=f"{len(items)} VPN peer(s)", items=items))
+    return ActionResult.success(VpnTopologyResult(title=f"{len(items)} VPN peer(s)", items=items), summary="Vpn topology listed.")
 
 
 @chat.function(
@@ -224,7 +224,7 @@ async def list_appliance_health(ctx, params: ListApplianceHealthParams) -> Actio
         )
         for d in data if "MX" in (d.get("model", "") or "")
     ]
-    return ActionResult(success=True, data=ApplianceHealthList(title=f"{len(items)} appliance(s)", items=items))
+    return ActionResult.success(ApplianceHealthList(title=f"{len(items)} appliance(s)", items=items), summary="Appliance health listed.")
 
 
 @chat.function(
@@ -241,7 +241,7 @@ async def reboot_appliance(ctx, params: RebootApplianceParams) -> ActionResult:
     ok, data = await cc.meraki_request(ctx, conn, "POST", f"/devices/{params.serial}/reboot")
     if not ok:
         return data
-    return ActionResult(success=True, data=RebootResult(id=params.serial, title="Reboot requested", ok=True))
+    return ActionResult.success(RebootResult(id=params.serial, title="Reboot requested", ok=True), summary="Reboot appliance done.")
 
 
 @chat.function(
@@ -268,7 +268,7 @@ async def list_alerts(ctx, params: ListAlertsParams) -> ActionResult:
         )
         for a in (data if isinstance(data, list) else data.get("items", []))
     ]
-    return ActionResult(success=True, data=AlertList(title=f"{len(items)} alert(s)", items=items))
+    return ActionResult.success(AlertList(title=f"{len(items)} alert(s)", items=items), summary="Alerts listed.")
 
 
 @chat.function(
@@ -286,4 +286,4 @@ async def create_alert_webhook(ctx, params: CreateAlertWebhookParams) -> ActionR
     ok, data = await cc.meraki_request(ctx, conn, "POST", f"/networks/{params.network_id}/webhooks/httpServers", json_body=body)
     if not ok:
         return data
-    return ActionResult(success=True, data=WebhookResult(id=data.get("id", ""), title=data.get("name", ""), url=data.get("url", "")))
+    return ActionResult.success(WebhookResult(id=data.get("id", ""), title=data.get("name", ""), url=data.get("url", "")), summary="Alert webhook created.")

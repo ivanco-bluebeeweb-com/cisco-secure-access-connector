@@ -52,7 +52,7 @@ async def list_destination_lists(ctx, params: ListDestinationListsParams) -> Act
         )
         for d in (data if isinstance(data, list) else data.get("data", []))
     ]
-    return ActionResult(success=True, data=DestinationListList(title=f"{len(items)} destination list(s)", items=items))
+    return ActionResult.success(DestinationListList(title=f"{len(items)} destination list(s)", items=items), summary="Destination lists listed.")
 
 
 @chat.function(
@@ -69,11 +69,11 @@ async def get_destination_list(ctx, params: GetDestinationListParams) -> ActionR
     ok, data = await cc.umbrella_request(ctx, conn, token, "GET", f"/policies/v2/destinationlists/{params.destination_list_id}")
     if not ok:
         return data
-    return ActionResult(success=True, data=DestinationList(
+    return ActionResult.success(DestinationList(
         id=str(data.get("id", "")), title=data.get("name", ""),
         access=data.get("access", ""), entry_count=data.get("meta", {}).get("total", 0),
         is_global=data.get("isGlobal", False),
-    ))
+    ), summary="Destination list retrieved.")
 
 
 @chat.function(
@@ -91,9 +91,9 @@ async def create_destination_list(ctx, params: CreateDestinationListParams) -> A
     ok, data = await cc.umbrella_request(ctx, conn, token, "POST", "/policies/v2/destinationlists", json_body=body)
     if not ok:
         return data
-    return ActionResult(success=True, data=DestinationList(
+    return ActionResult.success(DestinationList(
         id=str(data.get("id", "")), title=data.get("name", params.name), access=params.access,
-    ))
+    ), summary="Destination list created.")
 
 
 @chat.function(
@@ -113,7 +113,7 @@ async def update_destination_list(ctx, params: UpdateDestinationListParams) -> A
     ok, data = await cc.umbrella_request(ctx, conn, token, "PATCH", f"/policies/v2/destinationlists/{params.destination_list_id}", json_body=body)
     if not ok:
         return data
-    return ActionResult(success=True, data=DestinationList(id=params.destination_list_id, title=params.name or "(updated)"))
+    return ActionResult.success(DestinationList(id=params.destination_list_id, title=params.name or "(updated)"), summary="Destination list updated.")
 
 
 @chat.function(
@@ -130,7 +130,7 @@ async def delete_destination_list(ctx, params: DeleteDestinationListParams) -> A
     ok, data = await cc.umbrella_request(ctx, conn, token, "DELETE", f"/policies/v2/destinationlists/{params.destination_list_id}")
     if not ok:
         return data
-    return ActionResult(success=True, data=DeleteResult(id=params.destination_list_id, title="Deleted", deleted=True))
+    return ActionResult.success(DeleteResult(id=params.destination_list_id, title="Deleted", deleted=True), summary="Destination list deleted.")
 
 
 @chat.function(
@@ -148,7 +148,7 @@ async def add_destination_list_entry(ctx, params: AddDestinationListEntryParams)
     ok, data = await cc.umbrella_request(ctx, conn, token, "POST", f"/policies/v2/destinationlists/{params.destination_list_id}/destinations", json_body=body)
     if not ok:
         return data
-    return ActionResult(success=True, data=DestinationList(id=params.destination_list_id, title="Entries added"))
+    return ActionResult.success(DestinationList(id=params.destination_list_id, title="Entries added"), summary="Destination list entry created.")
 
 
 @chat.function(
@@ -169,7 +169,7 @@ async def remove_destination_list_entry(ctx, params: RemoveDestinationListEntryP
     )
     if not ok:
         return data
-    return ActionResult(success=True, data=DestinationList(id=params.destination_list_id, title="Entries removed"))
+    return ActionResult.success(DestinationList(id=params.destination_list_id, title="Entries removed"), summary="Destination list entry deleted.")
 
 
 @chat.function(
@@ -191,7 +191,7 @@ async def list_policies(ctx, params: ListPoliciesParams) -> ActionResult:
                priority=p.get("priority", 0), identity_count=len(p.get("identities", [])))
         for p in (data if isinstance(data, list) else data.get("data", []))
     ]
-    return ActionResult(success=True, data=PolicyList(title=f"{len(items)} polic(y/ies)", items=items))
+    return ActionResult.success(PolicyList(title=f"{len(items)} polic(y/ies)", items=items), summary="Policies listed.")
 
 
 @chat.function(
@@ -208,10 +208,10 @@ async def get_policy(ctx, params: GetPolicyParams) -> ActionResult:
     ok, data = await cc.umbrella_request(ctx, conn, token, "GET", f"/policies/v2/dnspolicies/{params.policy_id}")
     if not ok:
         return data
-    return ActionResult(success=True, data=Policy(
+    return ActionResult.success(Policy(
         id=str(data.get("policyId", "")), title=data.get("policyName", ""),
         priority=data.get("priority", 0), identity_count=len(data.get("identities", [])),
-    ))
+    ), summary="Policy retrieved.")
 
 
 @chat.function(
@@ -233,7 +233,7 @@ async def list_umbrella_networks(ctx, params: ListNetworksParams) -> ActionResul
                          ip_address=n.get("ipAddress", ""), status=n.get("status", ""))
         for n in (data if isinstance(data, list) else data.get("data", []))
     ]
-    return ActionResult(success=True, data=UmbrellaNetworkList(title=f"{len(items)} network(s)", items=items))
+    return ActionResult.success(UmbrellaNetworkList(title=f"{len(items)} network(s)", items=items), summary="Umbrella networks listed.")
 
 
 @chat.function(
@@ -259,7 +259,7 @@ async def list_roaming_computers(ctx, params: ListRoamingComputersParams) -> Act
         )
         for rc in (data if isinstance(data, list) else data.get("data", []))
     ]
-    return ActionResult(success=True, data=RoamingComputerList(title=f"{len(items)} roaming computer(s)", items=items))
+    return ActionResult.success(RoamingComputerList(title=f"{len(items)} roaming computer(s)", items=items), summary="Roaming computers listed.")
 
 
 @chat.function(
@@ -280,4 +280,4 @@ async def list_virtual_appliances(ctx, params: ListVirtualAppliancesParams) -> A
         VirtualAppliance(id=str(va.get("originId", "")), title=va.get("name", ""), status=va.get("status", ""))
         for va in (data if isinstance(data, list) else data.get("data", []))
     ]
-    return ActionResult(success=True, data=VirtualApplianceList(title=f"{len(items)} virtual appliance(s)", items=items))
+    return ActionResult.success(VirtualApplianceList(title=f"{len(items)} virtual appliance(s)", items=items), summary="Virtual appliances listed.")

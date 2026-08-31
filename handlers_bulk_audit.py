@@ -36,7 +36,7 @@ async def bulk_update_destination_lists(ctx, params: BulkUpdateDestinationListsP
             items.append(BulkActionOutcome(id=dlid, ok=True))
         else:
             items.append(BulkActionOutcome(id=dlid, ok=False, error=data.error if hasattr(data, "error") else str(data)))
-    return ActionResult(success=True, data=BulkActionResult(title="Bulk destination list access change", items=items))
+    return ActionResult.success(BulkActionResult(title="Bulk destination list access change", items=items), summary="Bulk update destination lists done.")
 
 
 @chat.function(
@@ -56,7 +56,7 @@ async def bulk_reboot_appliances(ctx, params: BulkRebootAppliancesParams) -> Act
             items.append(BulkActionOutcome(id=serial, ok=True))
         else:
             items.append(BulkActionOutcome(id=serial, ok=False, error=data.error if hasattr(data, "error") else str(data)))
-    return ActionResult(success=True, data=BulkActionResult(title="Bulk appliance reboot", items=items))
+    return ActionResult.success(BulkActionResult(title="Bulk appliance reboot", items=items), summary="Bulk reboot appliances done.")
 
 
 @chat.function(
@@ -119,11 +119,11 @@ async def audit_secure_access(ctx, params: AuditSecureAccessParams) -> ActionRes
                 detail=f"{recent_alerts} alert(s) currently open.",
             ))
 
-    return ActionResult(success=True, data=AuditReport(
+    return ActionResult.success(AuditReport(
         title="Cisco Secure Access health audit",
         unassigned_destination_lists=unassigned_dl,
         offline_roaming_computers=offline_rc,
         offline_appliances=offline_appl,
         recent_alerts_24h=recent_alerts,
         findings=findings,
-    ))
+    ), summary="Secure access audit ready.")
